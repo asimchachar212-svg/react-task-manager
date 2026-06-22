@@ -1,12 +1,15 @@
-
 import { useState, useEffect } from "react";
+import TaskStats from "./components/TaskStats";
+import TaskForm from "./components/TaskForm";
+import FilterButtons from "./components/FilterButtons";
+import TaskList from "./components/TaskList";
 import "./App.css";
 
 function App() {
   const [task, setTask] = useState("");
   const [filter, setFilter] = useState("all");
   const [editingIndex, setEditingIndex] = useState(null);
-const [editText, setEditText] = useState("");
+  const [editText, setEditText] = useState("");
 
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem("tasks");
@@ -27,9 +30,10 @@ const [editText, setEditText] = useState("");
     if (!task.trim()) return;
 
     const newTask = {
-      text: task,
-      completed: false,
-    };
+  id: Date.now(),
+  text: task,
+  completed: false,
+};
 
     setTasks([...tasks, newTask]);
     setTask("");
@@ -46,122 +50,37 @@ const [editText, setEditText] = useState("");
 
     return true;
   });
-const activeTasks = tasks.filter(
-  (task) => !task.completed
-).length;
 
-const completedTasks = tasks.filter(
-  (task) => task.completed
-).length;
   return (
     <div className="container">
       <h1>Task Manager</h1>
-<p>Total Tasks: {tasks.length}</p>
-<p>Active Tasks: {activeTasks}</p>
-<p>Completed Tasks: {completedTasks}</p>
-     <input
-  type="text"
-  placeholder="Enter a task"
-  value={task}
-  onChange={(e) => setTask(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      addTask();
-    }
-  }}
+
+      <TaskStats tasks={tasks} />
+
+     <TaskForm
+  task={task}
+  setTask={setTask}
+  addTask={addTask}
 />
-      <button onClick={addTask}>
-        Add Task
-      </button>
 
       <br />
       <br />
 
-      <button onClick={() => setFilter("all")}>
-        All
-      </button>
+      <FilterButtons setFilter={setFilter} />
 
-      <button onClick={() => setFilter("active")}>
-        Active
-      </button>
-
-      <button onClick={() => setFilter("completed")}>
-        Completed
-      </button>
-
-      <ul>
-        {filteredTasks.map((item, index) => (
-          <li key={index}>
-            {editingIndex === index ? (
-  <input
-    value={editText}
-    onChange={(e) =>
-      setEditText(e.target.value)
-    }
-  />
-) : (
-  <span
-    style={{
-      textDecoration: item.completed
-        ? "line-through"
-        : "none",
-    }}
-  >
-    {item.text}
-  </span>
-)}
-<button
-  onClick={() => {
-    setEditingIndex(index);
-    setEditText(item.text);
-  }}
->
-  Edit
-</button>
-{editingIndex === index && (
-  <button
-    onClick={() => {
-      const updatedTasks = [...tasks];
-
-      updatedTasks[index].text = editText;
-
-      setTasks(updatedTasks);
-
-      setEditingIndex(null);
-      setEditText("");
-    }}
-  >
-    Save
-  </button>
-)}
-
-            <button
-              onClick={() => {
-                const updatedTasks = [...tasks];
-
-                updatedTasks[index].completed =
-                  !updatedTasks[index].completed;
-
-                setTasks(updatedTasks);
-              }}
-            >
-              Complete
-            </button>
-
-            <button
-              onClick={() => {
-                const updatedTasks = tasks.filter(
-                  (_, i) => i !== index
-                );
-
-                setTasks(updatedTasks);
-              }}
-            >
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
+      
+            
+          
+        
+      <TaskList
+  filteredTasks={filteredTasks}
+  tasks={tasks}
+  setTasks={setTasks}
+  editingIndex={editingIndex}
+  setEditingIndex={setEditingIndex}
+  editText={editText}
+  setEditText={setEditText}
+/>
     </div>
   );
 }
